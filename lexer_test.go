@@ -36,20 +36,7 @@ func TestProcess(t *testing.T) {
 			assert.Equal(t, test.expectedMatch, token.Value, "token.Value")
 			assert.Equal(t, test.expectedType, token.Type, "token.Type")
 		})
-
 	}
-}
-
-func assemble(tokens []Token) string {
-	var sb string
-	for _, token := range tokens {
-		if token.Type != TokenPunctuation {
-			sb += " "
-		}
-		sb += token.Value
-	}
-
-	return sb
 }
 
 func TestDefaultLexer(t *testing.T) {
@@ -116,6 +103,22 @@ func TestDefaultLexer(t *testing.T) {
 		{
 			query:         `WITH cte AS (SELECT * FROM xyz WHERE k = 0) SELECT * FROM cte ORDER BY k`,
 			expectedCount: 35,
+		},
+		{
+			query:         `SELECT (1 + 1) AS result`,
+			expectedCount: 13,
+		},
+		{
+			query:         `SELECT (1+1) AS result`,
+			expectedCount: 11,
+		},
+		{
+			query:         `SELECT (1+1), (2+2)`,
+			expectedCount: 14,
+		},
+		{
+			query:         `SELECT (1+1),(2+2)`,
+			expectedCount: 13,
 		},
 	}
 

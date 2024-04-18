@@ -33,15 +33,9 @@ var defaultRegexChecks = []matchInstruction[*regexp.Regexp]{
 	{regexp.MustCompile(`[\r\n]+`), TokenNewline},
 	{regexp.MustCompile(`\s+?`), TokenWhitespace},
 	{regexp.MustCompile(`\*`), TokenWildcard},
-	//    (r'-?\d+(\.\d+)?E-?\d+', tokens.Number.Float),
-	//    (r'(?![_A-ZÀ-Ü])-?(\d+(\.\d*)|\.\d+)(?![_A-ZÀ-Ü])',
-	//     tokens.Number.Float),
 	{regexp.MustCompile(`-?\d+(\.\d+)?E-?\d+`), TokenNumberFloat},
-	{regexp.MustCompile(`[^_A-ZÀ-Ü]-?(\d+(\.\d*)|\.\d+)[^_A-ZÀ-Ü]`), TokenNumberFloat},
-	{
-		regexp.MustCompile(`[^_A-ZÀ-Ü]-?\d+[^_A-ZÀ-Ü]`),
-		TokenNumberInteger,
-	},
+	{regexp.MustCompile(`[^()_A-ZÀ-Ü]-?(\d+(\.\d*)|\.\d+)[^()_A-ZÀ-Ü]`), TokenNumberFloat},
+	{regexp.MustCompile(`[^()_A-ZÀ-Ü]-?\d+[^()_A-ZÀ-Ü]`), TokenNumberInteger},
 
 	{
 		regexp.MustCompile(`'(''|\\'|[^'])*'`),
@@ -72,9 +66,10 @@ var defaultRegexChecks = []matchInstruction[*regexp.Regexp]{
 		TokenUseAsKeyword,
 	},
 	{
-		regexp.MustCompile(`[;()[\],.]+`),
+		regexp.MustCompile(`[;()[\],.]`),
 		TokenPunctuation,
 	},
+	{regexp.MustCompile(`[+/@#%^&|-]+`), TokenOperator},
 }
 
 var defaultKeywords = []matchInstruction[string]{
@@ -168,7 +163,7 @@ func (l *Lexer) process(accum string) (t Token) {
 	}
 
 	if matchType == TokenUseAsKeyword {
-		if l.IsKeyword(accum) {
+		if l.IsKeyword(strMatch) {
 			matchType = TokenKeyword
 		} else {
 			matchType = TokenName
