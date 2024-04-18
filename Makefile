@@ -1,5 +1,8 @@
-run:
+generate:
+	go generate
+
+run: generate
 	go run cmd/*.go
 
-build:
+build: generate
 	go build -o bin/sqlparse cmd/*.go
