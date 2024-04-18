@@ -22,6 +22,7 @@ const (
 	TokenNumberInteger
 	TokenNumberFloat
 	TokenString
+	TokenComment
 )
 
 type matchInstruction[T any] struct {
@@ -31,14 +32,19 @@ type matchInstruction[T any] struct {
 
 var defaultRegexChecks = []matchInstruction[*regexp.Regexp]{
 	{regexp.MustCompile(`[\r\n]+`), TokenNewline},
-	{regexp.MustCompile(`\s+?`), TokenWhitespace},
+	{regexp.MustCompile(`\s+`), TokenWhitespace},
+	{regexp.MustCompile(`--.*?(\r\n|\r|\n|$)`), TokenComment},
+
 	{regexp.MustCompile(`\*`), TokenWildcard},
 	{regexp.MustCompile(`-?\d+(\.\d+)?E-?\d+`), TokenNumberFloat},
-	{regexp.MustCompile(`[^()_A-ZÀ-Ü]-?(\d+(\.\d*)|\.\d+)[^()_A-ZÀ-Ü]`), TokenNumberFloat},
-	{regexp.MustCompile(`[^()_A-ZÀ-Ü]-?\d+[^()_A-ZÀ-Ü]`), TokenNumberInteger},
-
+	{regexp.MustCompile(`[^'"()_A-ZÀ-Ü]-?(\d+(\.\d*)|\.\d+)[^'"()_A-ZÀ-Ü]`), TokenNumberFloat},
+	{regexp.MustCompile(`[^'"()_A-ZÀ-Ü]-?\d+[^'"()_A-ZÀ-Ü]`), TokenNumberInteger},
 	{
 		regexp.MustCompile(`'(''|\\'|[^'])*'`),
+		TokenString,
+	},
+	{
+		regexp.MustCompile("`(\\`|[^`])*`"),
 		TokenString,
 	},
 	{

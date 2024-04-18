@@ -21,11 +21,12 @@ func _() {
 	_ = x[TokenNumberInteger-10]
 	_ = x[TokenNumberFloat-11]
 	_ = x[TokenString-12]
+	_ = x[TokenComment-13]
 }
 
-const _TokenType_name = "UnknownWhitespaceNewlineKeywordKeywordCTEOperatorUseAsKeywordPunctuationNameWildcardNumberIntegerNumberFloatString"
+const _TokenType_name = "UnknownWhitespaceNewlineKeywordKeywordCTEOperatorUseAsKeywordPunctuationNameWildcardNumberIntegerNumberFloatStringComment"
 
-var _TokenType_index = [...]uint8{0, 7, 17, 24, 31, 41, 49, 61, 72, 76, 84, 97, 108, 114}
+var _TokenType_index = [...]uint8{0, 7, 17, 24, 31, 41, 49, 61, 72, 76, 84, 97, 108, 114, 121}
 
 func (i TokenType) String() string {
 	if i < 0 || i >= TokenType(len(_TokenType_index)-1) {

@@ -120,6 +120,14 @@ func TestDefaultLexer(t *testing.T) {
 			query:         `SELECT (1+1),(2+2)`,
 			expectedCount: 13,
 		},
+		{
+			query:         "SELECT *\n-- testing comment\nFROM bar",
+			expectedCount: 8,
+		},
+		{
+			query:         "SELECT *, xyz, abc FROM `scope.group.table_name`",
+			expectedCount: 13,
+		},
 	}
 
 	for _, test := range tests {
