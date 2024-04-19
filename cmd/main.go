@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"github.com/ipkgs/sqlparse"
 	"io"
@@ -20,6 +21,7 @@ func usage(out io.Writer) {
 	fmt.Fprintf(out, "  -c, --from-break-count: number of line breaks after FROM clause (use -c multiple times to increase\n")
 	fmt.Fprintf(out, "                          the number of fields, or use the long form with a number parameter)\n")
 	fmt.Fprintf(out, "  -C, --remove-comments: remove comments from the sql query\n")
+	fmt.Fprintf(out, "  -j, --json: output the tokens as json (not compatible with format)\n")
 }
 
 type options struct {
@@ -28,6 +30,7 @@ type options struct {
 	reident        bool
 	fromCount      int
 	removeComments bool
+	json           bool
 }
 
 func run(out io.Writer, args ...string) error {
@@ -63,6 +66,8 @@ func run(out io.Writer, args ...string) error {
 					o.fromCount++
 				case 'C':
 					o.removeComments = true
+				case 'j':
+					o.json = true
 				default:
 					return fmt.Errorf("unknown option: -%c", currentOption[i])
 				}
@@ -91,6 +96,8 @@ func run(out io.Writer, args ...string) error {
 				o.fromCount = count
 			case "--remove-comments":
 				o.removeComments = true
+			case "--json":
+				o.json = true
 			default:
 				return fmt.Errorf("unknown option: %s", currentOption)
 			}
@@ -127,6 +134,10 @@ func run(out io.Writer, args ...string) error {
 		return fmt.Errorf("error: %w", err)
 	}
 
+	if o.format && o.json {
+		return fmt.Errorf("format and json options are not compatible")
+	}
+
 	if o.format {
 		var formatOptions []sqlparse.FormatOption
 
@@ -146,8 +157,31 @@ func run(out io.Writer, args ...string) error {
 		return nil
 	}
 
-	for _, token := range tokens {
-		fmt.Fprintf(out, "%s: %s\n", token.Type, token.Value)
+	if o.json {
+		type token struct {
+			Type  string `json:"type"`
+			Value string `json:"value"`
+		}
+		var tokenList []token
+		for _, t := range tokens {
+			if t.Type == sqlparse.TokenComment && o.removeComments {
+				continue
+			}
+			tokenList = append(
+				tokenList,
+				token{
+					strings.ToLower(t.Type.String()),
+					t.Value,
+				},
+			)
+		}
+		if err := json.NewEncoder(out).Encode(tokenList); err != nil {
+			return fmt.Errorf("json encode: %w", err)
+		}
+	} else {
+		for _, token := range tokens {
+			fmt.Fprintf(out, "%s: %s\n", token.Type, token.Value)
+		}
 	}
 
 	return nil

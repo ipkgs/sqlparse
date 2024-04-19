@@ -17,7 +17,7 @@ func TestSingleSelectQueryFormatted(t *testing.T) {
 	const query = "SELECT * FROM foo"
 	err := run(&buf, "-f", query)
 	require.NoError(t, err)
-	require.Equal(t, "SELECT * FROM foo\n", buf.String())
+	require.Equal(t, query+"\n", buf.String())
 }
 
 func TestSingleSelectQueryFormattedLong(t *testing.T) {
@@ -25,7 +25,15 @@ func TestSingleSelectQueryFormattedLong(t *testing.T) {
 	const query = "SELECT * FROM foo"
 	err := run(&buf, "--format", query)
 	require.NoError(t, err)
-	require.Equal(t, "SELECT * FROM foo\n", buf.String())
+	require.Equal(t, query+"\n", buf.String())
+}
+
+func TestSingleSelectQueryJSON(t *testing.T) {
+	var buf bytes.Buffer
+	const query = "SELECT * FROM foo"
+	err := run(&buf, "-j", query)
+	require.NoError(t, err)
+	require.Equal(t, `[{"type":"keyword","value":"SELECT"},{"type":"whitespace","value":" "},{"type":"wildcard","value":"*"},{"type":"whitespace","value":" "},{"type":"keyword","value":"FROM"},{"type":"whitespace","value":" "},{"type":"name","value":"foo"}]`+"\n", buf.String())
 }
 
 func TestQueryReident(t *testing.T) {
@@ -50,4 +58,12 @@ func TestRemoveComments(t *testing.T) {
 	err := run(&buf, "-fC", query)
 	require.NoError(t, err)
 	require.Equal(t, "SELECT bar, baz, baj, xyz FROM foo \n", buf.String())
+}
+
+func TestRemoveCommentsJSON(t *testing.T) {
+	var buf bytes.Buffer
+	const query = "SELECT bar, baz, baj, xyz FROM foo -- comment"
+	err := run(&buf, "-jC", query)
+	require.NoError(t, err)
+	require.Equal(t, `[{"type":"keyword","value":"SELECT"},{"type":"whitespace","value":" "},{"type":"name","value":"bar"},{"type":"punctuation","value":","},{"type":"whitespace","value":" "},{"type":"name","value":"baz"},{"type":"punctuation","value":","},{"type":"whitespace","value":" "},{"type":"name","value":"baj"},{"type":"punctuation","value":","},{"type":"whitespace","value":" "},{"type":"name","value":"xyz"},{"type":"whitespace","value":" "},{"type":"keyword","value":"FROM"},{"type":"whitespace","value":" "},{"type":"name","value":"foo"},{"type":"whitespace","value":" "}]`+"\n", buf.String())
 }

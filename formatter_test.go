@@ -75,7 +75,11 @@ func TestFormat(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.query, func(t *testing.T) {
+		testName := test.query
+		if len(testName) > 15 {
+			testName = testName[:12] + "..."
+		}
+		t.Run(testName, func(t *testing.T) {
 			tokens, err := GetTokens(test.query)
 			resultFormatted := Format(tokens, test.options...)
 			resultNoOptions := Format(tokens)
