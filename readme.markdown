@@ -8,7 +8,7 @@ the `sqlparse` command reads SQL from the command line or from the stdin and wri
 formatted query to the output
 
 ```sh
-sqlparse -h
+$ sqlparse -h
 usage: sqlparse [options] <sql>
 the sql query can be replaced by '-' to read from stdin
 options:
@@ -20,6 +20,28 @@ options:
                           the number of fields, or use the long form with a number parameter)
   -C, --remove-comments: remove comments from the sql query
   -j, --json: output the tokens as json (not compatible with format)
+```
+
+## API Usage
+
+The `sqlparse` package provides a simple API to parse and format SQL queries
+
+```go
+package something
+
+import (
+    "fmt"
+
+    "github.com/ipkgs/sqlparse"
+)
+
+func FormatQuery(q string) (string, error) {
+	tokens, err := sqlparse.GetTokens(q)
+	if err != nil {
+		return "", fmt.Errorf("sqlparse.GetTokens: %w", err)
+	}
+	return sqlparse.Format(tokens, sqlparse.FormatOptionReident(true)), nil
+}
 ```
 
 # Author
