@@ -51,14 +51,9 @@ var defaultRegexChecks = []matchInstruction[*regexp.Regexp]{
 		regexp.MustCompile(`((LEFT\s+|RIGHT\s+|FULL\s+)?(INNER\s+|OUTER\s+|STRAIGHT\s+)?|(CROSS\s+|NATURAL\s+)?)?JOIN\b`),
 		TokenKeyword,
 	},
-	{
-		regexp.MustCompile(`ORDER\s+BY\b`),
-		TokenKeyword,
-	},
-	{
-		regexp.MustCompile(`GROUP\s+BY\b`),
-		TokenKeyword,
-	},
+	{regexp.MustCompile(`ORDER\s+BY\b`), TokenKeyword},
+	{regexp.MustCompile(`GROUP\s+BY\b`), TokenKeyword},
+	{regexp.MustCompile(`UNION\s+ALL\b`), TokenKeyword},
 	{
 		regexp.MustCompile(`[<>=~!]+`),
 		TokenOperator,
@@ -93,6 +88,7 @@ var defaultKeywords = []matchInstruction[string]{
 	{"IN", TokenKeyword},
 	{"ORDER", TokenKeyword},
 	{"BY", TokenKeyword},
+	{"UNION", TokenKeyword},
 }
 
 type Token struct {
