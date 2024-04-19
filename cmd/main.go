@@ -11,11 +11,19 @@ import (
 	"strings"
 )
 
+var version = "dev"
+
+func versionOut(out io.Writer) {
+	fmt.Fprintf(out, "sqlparse %s\n", version)
+}
+
 func usage(out io.Writer) {
+	versionOut(out)
 	fmt.Fprintf(out, "usage: sqlparse [options] <sql>\n")
 	fmt.Fprintf(out, "the sql query can be replaced by '-' to read from stdin\n")
 	fmt.Fprintf(out, "options:\n")
-	fmt.Fprintf(out, "  -h, --help: show this help message\n")
+	fmt.Fprintf(out, "  -v, --version: show the version and exits\n")
+	fmt.Fprintf(out, "  -h, --help: show this help message and exits\n")
 	fmt.Fprintf(out, "  -f, --format: formats the sql query\n")
 	fmt.Fprintf(out, "  -r, --reident: reindent the sql query\n")
 	fmt.Fprintf(out, "  -c, --from-break-count: number of line breaks after FROM clause (use -c multiple times to increase\n")
@@ -25,6 +33,7 @@ func usage(out io.Writer) {
 }
 
 type options struct {
+	version        bool
 	help           bool
 	format         bool
 	reident        bool
@@ -56,6 +65,8 @@ func run(out io.Writer, args ...string) error {
 			// short options
 			for i := 1; i < len(currentOption); i++ {
 				switch currentOption[i] {
+				case 'v':
+					o.version = true
 				case 'h':
 					o.help = true
 				case 'f':
@@ -75,6 +86,8 @@ func run(out io.Writer, args ...string) error {
 		} else {
 			// long options
 			switch currentOption {
+			case "--version":
+				o.version = true
 			case "--help":
 				o.help = true
 			case "--format":
@@ -104,6 +117,11 @@ func run(out io.Writer, args ...string) error {
 		}
 
 		startPos++
+	}
+
+	if o.version {
+		versionOut(out)
+		return nil
 	}
 
 	if o.help {
@@ -188,8 +206,6 @@ func run(out io.Writer, args ...string) error {
 }
 
 func main() {
-	fmt.Println("sqlparse")
-
 	if err := run(os.Stdout, os.Args[1:]...); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

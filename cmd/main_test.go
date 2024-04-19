@@ -6,6 +6,13 @@ import (
 	"testing"
 )
 
+func TestVersion(t *testing.T) {
+	var buf bytes.Buffer
+	err := run(&buf, "-v")
+	require.NoError(t, err)
+	require.Contains(t, buf.String(), "sqlparse dev\n")
+}
+
 func TestNoParams(t *testing.T) {
 	var buf bytes.Buffer
 	err := run(&buf)
