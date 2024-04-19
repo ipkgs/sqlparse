@@ -1,6 +1,6 @@
 # sqlparse
 
-SQL Parser written in Go
+SQL parser and formatter written in Go
 
 ## Usage
 
