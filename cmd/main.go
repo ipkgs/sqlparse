@@ -29,17 +29,19 @@ func usage(out io.Writer) {
 	fmt.Fprintf(out, "  -c, --from-break-count: number of line breaks after FROM clause (use -c multiple times to increase\n")
 	fmt.Fprintf(out, "                          the number of fields, or use the long form with a number parameter)\n")
 	fmt.Fprintf(out, "  -C, --remove-comments: remove comments from the sql query\n")
+	fmt.Fprintf(out, "  -U, --uppercase-keywords: uppercase the keywords\n")
 	fmt.Fprintf(out, "  -j, --json: output the tokens as json (not compatible with format)\n")
 }
 
 type options struct {
-	version        bool
-	help           bool
-	format         bool
-	reident        bool
-	fromCount      int
-	removeComments bool
-	json           bool
+	version           bool
+	help              bool
+	format            bool
+	reident           bool
+	fromCount         int
+	removeComments    bool
+	uppercaseKeywords bool
+	json              bool
 }
 
 func run(out io.Writer, args ...string) error {
@@ -77,6 +79,8 @@ func run(out io.Writer, args ...string) error {
 					o.fromCount++
 				case 'C':
 					o.removeComments = true
+				case 'U':
+					o.uppercaseKeywords = true
 				case 'j':
 					o.json = true
 				default:
@@ -109,6 +113,8 @@ func run(out io.Writer, args ...string) error {
 				o.fromCount = count
 			case "--remove-comments":
 				o.removeComments = true
+			case "--uppercase-keywords":
+				o.uppercaseKeywords = true
 			case "--json":
 				o.json = true
 			default:
@@ -168,6 +174,9 @@ func run(out io.Writer, args ...string) error {
 		if o.removeComments {
 			formatOptions = append(formatOptions, sqlparse.FormatOptionRemoveComments(true))
 		}
+		if o.uppercaseKeywords {
+			formatOptions = append(formatOptions, sqlparse.FormatOptionUppercaseKeywords(true))
+		}
 
 		formattedQuery := sqlparse.Format(tokens, formatOptions...)
 		fmt.Fprintf(out, formattedQuery)
@@ -180,6 +189,9 @@ func run(out io.Writer, args ...string) error {
 		for _, t := range tokens {
 			if t.Type == sqlparse.TokenComment {
 				continue
+			}
+			if t.Type == sqlparse.TokenKeyword {
+				t.Value = strings.ToUpper(t.Value)
 			}
 
 			newTokens = append(newTokens, t)
