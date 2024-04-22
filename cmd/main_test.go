@@ -75,6 +75,14 @@ func TestUppercaseKeywords(t *testing.T) {
 	require.Equal(t, "SELECT bar, baz, baj, xyz FROM foo\n", buf.String())
 }
 
+func TestUppercaseKeywordsJSON(t *testing.T) {
+	var buf bytes.Buffer
+	const query = "select bar, baz, baj, xyz from foo"
+	err := run(&buf, "-jU", query)
+	require.NoError(t, err)
+	require.Equal(t, `[{"type":"keyword","value":"SELECT"},{"type":"whitespace","value":" "},{"type":"name","value":"bar"},{"type":"punctuation","value":","},{"type":"whitespace","value":" "},{"type":"name","value":"baz"},{"type":"punctuation","value":","},{"type":"whitespace","value":" "},{"type":"name","value":"baj"},{"type":"punctuation","value":","},{"type":"whitespace","value":" "},{"type":"name","value":"xyz"},{"type":"whitespace","value":" "},{"type":"keyword","value":"FROM"},{"type":"whitespace","value":" "},{"type":"name","value":"foo"}]`+"\n", buf.String())
+}
+
 func TestRemoveCommentsJSON(t *testing.T) {
 	var buf bytes.Buffer
 	const query = "SELECT bar, baz, baj, xyz FROM foo -- comment"

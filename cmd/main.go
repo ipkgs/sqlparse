@@ -190,6 +190,9 @@ func run(out io.Writer, args ...string) error {
 			if t.Type == sqlparse.TokenComment {
 				continue
 			}
+			if t.Type == sqlparse.TokenKeyword {
+				t.Value = strings.ToUpper(t.Value)
+			}
 
 			newTokens = append(newTokens, t)
 		}
