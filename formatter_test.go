@@ -1,8 +1,10 @@
 package sqlparse
 
 import (
+	"encoding/json"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"strings"
 	"testing"
 )
 
@@ -72,6 +74,11 @@ func TestFormat(t *testing.T) {
 			expected: "SELECT *\nFROM bar",
 			options:  []FormatOption{FormatOptionRemoveComments(true)},
 		},
+		{
+			query:    `WITH complicated AS (SELECT some_id AS id, IF(x IN (1,1,2,3,5,8,13,21), 'A', 'B') AS something FROM data_source WHERE i = 9999999999 AND created_at >= DATE('2024-01-01') GROUP BY some_id, IF(x IN (1,1,2,3,5,8,13,21), 'A', 'B'), created_at) SELECT * FROM complicated`,
+			expected: "WITH\ncomplicated AS (\n  SELECT some_id AS id, IF(x IN (1,1,2,3,5,8,13,21), 'A', 'B') AS something\n  FROM data_source\n  WHERE i = 9999999999 AND created_at >= DATE('2024-01-01')\n  GROUP BY some_id, IF(x IN (1,1,2,3,5,8,13,21), 'A', 'B'), created_at\n)\nSELECT *\nFROM complicated",
+			options:  []FormatOption{FormatOptionReident(true)},
+		},
 	}
 
 	for _, test := range tests {
@@ -87,6 +94,17 @@ func TestFormat(t *testing.T) {
 			require.NoError(t, err, "GetTokens")
 			assert.Equal(t, test.query, resultNoOptions)
 			assert.Equal(t, test.expected, resultFormatted)
+
+			if t.Failed() {
+				var sb strings.Builder
+				encoder := json.NewEncoder(&sb)
+				encoder.SetIndent("", "  ")
+				if err := Encode(encoder, tokens); err != nil {
+					t.Fatal(err)
+				}
+
+				t.Log(sb.String())
+			}
 		})
 	}
 }

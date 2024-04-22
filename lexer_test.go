@@ -26,6 +26,11 @@ func TestProcess(t *testing.T) {
 		{"ORDER BY ", "ORDER BY", TokenKeyword},
 		{"ORDER", "ORDER", TokenKeyword},
 		{"ORDER ", "ORDER", TokenKeyword},
+		{"1", "1", TokenNumberInteger},
+		{"1,", "1", TokenNumberInteger},
+		{"1E99", "1E99", TokenNumberFloat},
+		{"1.99", "1.99", TokenNumberFloat},
+		{"-1.99", "-1.99", TokenNumberFloat},
 	}
 
 	lexer := defaultLexer()
@@ -34,7 +39,7 @@ func TestProcess(t *testing.T) {
 		t.Run(test.piece, func(t *testing.T) {
 			token := lexer.process(test.piece)
 			assert.Equal(t, test.expectedMatch, token.Value, "token.Value")
-			assert.Equal(t, test.expectedType, token.Type, "token.Type")
+			assert.Equalf(t, test.expectedType, token.Type, "token.Type: expected %s is not %s", test.expectedType, token.Type)
 		})
 	}
 }
@@ -90,15 +95,15 @@ func TestDefaultLexer(t *testing.T) {
 		},
 		{
 			query:         `SELECT foo, baz FROM bar WHERE foo = 99 AND baz = 'hello'`,
-			expectedCount: 25,
+			expectedCount: 26,
 		},
 		{
 			query:         `SELECT foo, baz FROM bar WHERE foo = 99 AND baz = 'hello world'`,
-			expectedCount: 25,
+			expectedCount: 26,
 		},
 		{
 			query:         "SELECT foo, baz\nFROM bar\nWHERE foo = 99 AND baz = 'hello world'",
-			expectedCount: 25,
+			expectedCount: 26,
 		},
 		{
 			query:         `WITH cte AS (SELECT * FROM xyz WHERE k = 0) SELECT * FROM cte ORDER BY k`,

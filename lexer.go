@@ -37,8 +37,8 @@ var defaultRegexChecks = []matchInstruction[*regexp.Regexp]{
 
 	{regexp.MustCompile(`\*`), TokenWildcard},
 	{regexp.MustCompile(`-?\d+(\.\d+)?E-?\d+`), TokenNumberFloat},
-	{regexp.MustCompile(`[^'"()_A-ZÀ-Ü]-?(\d+(\.\d*)|\.\d+)[^'"()_A-ZÀ-Ü]`), TokenNumberFloat},
-	{regexp.MustCompile(`[^'"()_A-ZÀ-Ü]-?\d+[^'"()_A-ZÀ-Ü]`), TokenNumberInteger},
+	{regexp.MustCompile(`[^'"()_A-ZÀ-Ü\s,]-?(\d+(\.\d*)|\.\d+)[^'"()_A-ZÀ-Ü\s,]`), TokenNumberFloat},
+	{regexp.MustCompile(`-?\d+`), TokenNumberInteger},
 	{
 		regexp.MustCompile(`'(''|\\'|[^'])*'`),
 		TokenString,

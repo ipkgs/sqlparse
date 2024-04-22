@@ -176,30 +176,23 @@ func run(out io.Writer, args ...string) error {
 	}
 
 	if o.json {
-		type token struct {
-			Type  string `json:"type"`
-			Value string `json:"value"`
-		}
-		var tokenList []token
+		var newTokens []sqlparse.Token
 		for _, t := range tokens {
-			if t.Type == sqlparse.TokenComment && o.removeComments {
+			if t.Type == sqlparse.TokenComment {
 				continue
 			}
-			tokenList = append(
-				tokenList,
-				token{
-					strings.ToLower(t.Type.String()),
-					t.Value,
-				},
-			)
+
+			newTokens = append(newTokens, t)
 		}
-		if err := json.NewEncoder(out).Encode(tokenList); err != nil {
-			return fmt.Errorf("json encode: %w", err)
+		if err := sqlparse.Encode(json.NewEncoder(out), newTokens); err != nil {
+			return fmt.Errorf("sqlparse.Encode: %w", err)
 		}
-	} else {
-		for _, token := range tokens {
-			fmt.Fprintf(out, "%s: %s\n", token.Type, token.Value)
-		}
+
+		return nil
+	}
+
+	for _, token := range tokens {
+		fmt.Fprintf(out, "%s: %s\n", token.Type, token.Value)
 	}
 
 	return nil

@@ -81,9 +81,12 @@ func (f *formatOptionList) writeToken(tokens []Token, pos int) {
 		if tokenValue == "(" {
 			var shouldIdent bool
 
-			// if next keyword is SELECT, then we should ident
+			// if next keyword is SELECT, then we should ident. If we find any punctuation before the keyword, bail
 			var nextKeywordToken *Token
 			for i := pos + 1; i < len(tokens); i++ {
+				if tokens[i].Type == TokenPunctuation {
+					break
+				}
 				if tokens[i].Type == TokenKeyword {
 					nextKeywordToken = &tokens[i]
 					break
