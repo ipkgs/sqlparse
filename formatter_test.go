@@ -84,6 +84,16 @@ func TestFormat(t *testing.T) {
 			expected: `SELECT * FROM foo`,
 			options:  []FormatOption{FormatOptionReident(true), FormatOptionFromBreakCount(3)},
 		},
+		{
+			query:    "select * from foo",
+			expected: `select * from foo`,
+			options:  []FormatOption{FormatOptionUppercaseKeywords(false)},
+		},
+		{
+			query:    "select * from foo",
+			expected: `SELECT * FROM foo`,
+			options:  []FormatOption{FormatOptionUppercaseKeywords(true)},
+		},
 	}
 
 	for _, test := range tests {

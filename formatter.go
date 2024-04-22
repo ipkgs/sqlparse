@@ -22,10 +22,17 @@ func FormatOptionRemoveComments(value bool) FormatOption {
 	}
 }
 
+func FormatOptionUppercaseKeywords(value bool) FormatOption {
+	return func(f *formatOptionList) {
+		f.uppercaseKeywords = value
+	}
+}
+
 type formatOptionList struct {
-	reident        bool
-	fromBreakCount int
-	removeComments bool
+	reident           bool
+	fromBreakCount    int
+	removeComments    bool
+	uppercaseKeywords bool
 
 	parenthesisIdented []bool
 	writtenInThisLine  bool
@@ -188,6 +195,10 @@ func (f *formatOptionList) writeToken(tokens []Token, pos int) {
 		}
 
 		tokenValue = strings.TrimSpace(tokenValue)
+	}
+
+	if f.uppercaseKeywords && tokenType == TokenKeyword {
+		tokenValue = strings.ToUpper(tokenValue)
 	}
 
 	f.lastWrittenToken = &tokens[pos]
