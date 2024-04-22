@@ -1,6 +1,7 @@
 package sqlparse
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 )
@@ -102,10 +103,17 @@ type Lexer struct {
 }
 
 func defaultLexer() *Lexer {
-	return &Lexer{
-		regexChecks: defaultRegexChecks,
-		keywords:    defaultKeywords,
+	var l Lexer
+
+	for _, check := range defaultRegexChecks {
+		l.AddRegexp(check.value, check.instructionType)
 	}
+
+	for _, keyword := range defaultKeywords {
+		l.AddKeyword(keyword.value, keyword.instructionType)
+	}
+
+	return &l
 }
 
 func findInSlice(needle string, haystack []matchInstruction[string]) *matchInstruction[string] {
@@ -189,7 +197,7 @@ func (l *Lexer) GetTokens(data string) ([]Token, error) {
 	for pos < len(data) {
 		token := l.process(data[pos:])
 		if token.Value == "" {
-			break
+			return nil, fmt.Errorf("could not parse token at position %d", pos)
 		}
 
 		tokens = append(tokens, token)
@@ -200,6 +208,5 @@ func (l *Lexer) GetTokens(data string) ([]Token, error) {
 }
 
 func GetTokens(data string) ([]Token, error) {
-	lexer := defaultLexer()
-	return lexer.GetTokens(data)
+	return defaultLexer().GetTokens(data)
 }

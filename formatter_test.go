@@ -79,6 +79,11 @@ func TestFormat(t *testing.T) {
 			expected: "WITH\ncomplicated AS (\n  SELECT some_id AS id, IF(x IN (1,1,2,3,5,8,13,21), 'A', 'B') AS something\n  FROM data_source\n  WHERE i = 9999999999 AND created_at >= DATE('2024-01-01')\n  GROUP BY some_id, IF(x IN (1,1,2,3,5,8,13,21), 'A', 'B'), created_at\n)\nSELECT *\nFROM complicated",
 			options:  []FormatOption{FormatOptionReident(true)},
 		},
+		{
+			query:    "SELECT \n * FROM foo",
+			expected: `SELECT * FROM foo`,
+			options:  []FormatOption{FormatOptionReident(true), FormatOptionFromBreakCount(3)},
+		},
 	}
 
 	for _, test := range tests {
