@@ -1,0 +1,28 @@
+name: Go
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.22'
+
+      - name: build command line tool
+        run: go build -v -o ./bin/sqlparse ./cmd/
+
+      - name: Install Test dependencies
+        run: go install github.com/mfridman/tparse@v0.13.2
+
+      - name: Test
+        run: go list ./... | xargs go test -v -cover -json | tparse -all -follow
